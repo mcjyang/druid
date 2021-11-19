@@ -19,6 +19,7 @@
 
 package org.apache.druid.sql.calcite.aggregation;
 
+import org.apache.druid.java.util.common.logger.Logger;
 import org.apache.druid.query.dimension.DefaultDimensionSpec;
 import org.apache.druid.query.dimension.DimensionSpec;
 import org.apache.druid.segment.column.ValueType;
@@ -31,6 +32,7 @@ public class DimensionExpression
   private final String outputName;
   private final DruidExpression expression;
   private final ValueType outputType;
+  private static final Logger log = new Logger(DimensionExpression.class);
 
   public DimensionExpression(
       final String outputName,
@@ -55,6 +57,7 @@ public class DimensionExpression
 
   public DimensionSpec toDimensionSpec()
   {
+    log.info("expression: [%s], isSimpleExtraction: [%s], extractionFn: [%s]", expression.toString(), expression.isSimpleExtraction(), expression.getSimpleExtraction().getExtractionFn());
     if (expression.isSimpleExtraction()) {
       return expression.getSimpleExtraction().toDimensionSpec(outputName, outputType);
     } else {

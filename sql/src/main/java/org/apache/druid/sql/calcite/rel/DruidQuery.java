@@ -44,6 +44,7 @@ import org.apache.calcite.util.ImmutableBitSet;
 import org.apache.druid.java.util.common.ISE;
 import org.apache.druid.java.util.common.granularity.Granularities;
 import org.apache.druid.java.util.common.granularity.Granularity;
+import org.apache.druid.java.util.common.logger.Logger;
 import org.apache.druid.math.expr.Parser;
 import org.apache.druid.query.DataSource;
 import org.apache.druid.query.Query;
@@ -116,6 +117,7 @@ public class DruidQuery
   private final RowSignature outputRowSignature;
   private final RelDataType outputRowType;
   private final VirtualColumnRegistry virtualColumnRegistry;
+  private static final Logger log = new Logger(DruidQuery.class);
 
   public DruidQuery(
       final PartialDruidQuery partialQuery,
@@ -271,8 +273,10 @@ public class DruidQuery
       final boolean finalizeAggregations
   )
   {
+    log.info("inside computeGroup, partialDruidQUery: [%s]", partialQuery.toString());
     final Aggregate aggregate = Preconditions.checkNotNull(partialQuery.getAggregate(), "aggregate");
     final Project aggregateProject = partialQuery.getAggregateProject();
+
 
     final List<DimensionExpression> dimensions = computeDimensions(
         partialQuery,
@@ -368,6 +372,8 @@ public class DruidQuery
           i
       );
       final DruidExpression druidExpression = Expressions.toDruidExpression(plannerContext, rowSignature, rexNode);
+      log.info("inside computeDimensions, druidExpression: [%s]", druidExpression.toString());
+      log.info("inside computeDimensions, rexNode.getType:[%s], rexNode.getKind:[%s], rexNode.toString:[%s]", rexNode.getType(), rexNode.getKind(), rexNode.toString());
       if (druidExpression == null) {
         throw new CannotBuildQueryException(aggregate, rexNode);
       }
