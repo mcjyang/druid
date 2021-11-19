@@ -21,10 +21,7 @@ package org.apache.druid.initialization;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
+import com.google.inject.*;
 import com.google.inject.util.Modules;
 import org.apache.commons.io.FileUtils;
 import org.apache.druid.curator.CuratorModule;
@@ -428,7 +425,15 @@ public class Initialization
       extensionModules.addModule(module);
     }
 
-    return Guice.createInjector(Modules.override(intermediateModules).with(extensionModules.getModules()));
+    Injector injector = Guice.createInjector(Modules.override(intermediateModules).with(extensionModules.getModules()));
+    for (Map.Entry<Key<?>, Binding<?>> entry: injector.getAllBindings().entrySet()) {
+      if (entry.getKey().toString().contains("SqlOperatorConversion")){
+        log.info("Key [%s]: ", entry.getKey().toString());
+        log.info("Binding [%s]: ", entry.getValue().getSource().toString());
+      }
+    }
+
+    return injector;
   }
 
   private static class ModuleList
