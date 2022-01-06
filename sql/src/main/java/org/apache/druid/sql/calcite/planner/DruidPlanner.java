@@ -153,6 +153,8 @@ public class DruidPlanner implements Closeable
     return plannerContext;
   }
 
+  public FrameworkConfig getFrameworkConfig() { return frameworkConfig; }
+
   @Override
   public void close()
   {

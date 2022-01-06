@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import org.apache.calcite.avatica.remote.TypedValue;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.parser.SqlParseException;
+import org.apache.calcite.tools.FrameworkConfig;
 import org.apache.calcite.tools.RelConversionException;
 import org.apache.calcite.tools.ValidationException;
 import org.apache.druid.java.util.common.DateTimes;
@@ -54,12 +55,7 @@ import org.apache.druid.sql.http.SqlQuery;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -164,8 +160,16 @@ public class SqlLifecycle
   {
     synchronized (lock) {
       transition(State.INITIALIZED, State.PLANNED);
+
       try (DruidPlanner planner = plannerFactory.createPlanner(queryContext, parameters, authenticationResult)) {
+        log.error("planner creation succeeded!");
         this.plannerContext = planner.getPlannerContext();
+
+        FrameworkConfig frameworkConfig = planner.getFrameworkConfig();
+        log.error("frameworkConfig.getDefaultSchema().getName():" + frameworkConfig.getDefaultSchema().getName());
+        Set<String> schemaNames = frameworkConfig.getDefaultSchema().getSubSchemaNames();
+        log.error("frameworkConfig.getDefaultSchema().getSubSchemaNames().size:" + schemaNames.size());
+
         this.plannerResult = planner.plan(sql);
       }
       // we can't collapse catch clauses since SqlPlanningException has type-sensitive constructors.

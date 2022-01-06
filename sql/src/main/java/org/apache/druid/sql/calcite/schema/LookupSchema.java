@@ -43,6 +43,13 @@ public class LookupSchema extends AbstractSchema
                   .add(LookupColumnSelectorFactory.VALUE_COLUMN, ValueType.STRING)
                   .build();
 
+
+  private static final RowSignature ROW_SIGNATURE_2 =
+          RowSignature.builder()
+                  .add("id", ValueType.STRING)
+                  .add("status", ValueType.STRING)
+                  .build();
+
   private final LookupExtractorFactoryContainerProvider lookupProvider;
 
   @Inject
@@ -61,6 +68,9 @@ public class LookupSchema extends AbstractSchema
       // (if we ignore lookup tiers...)
       tableMapBuilder.put(lookupName, new DruidTable(new LookupDataSource(lookupName), ROW_SIGNATURE, true, true));
     }
+
+    //hack
+    tableMapBuilder.put("status_lookup", new DruidTable(new LookupDataSource("status_lookup"), ROW_SIGNATURE_2, true, true));
 
     return tableMapBuilder.build();
   }

@@ -88,6 +88,7 @@ public class SqlResource
       @Context final HttpServletRequest req
   ) throws IOException
   {
+    log.error("sqlPost go here");
     final SqlLifecycle lifecycle = sqlLifecycleFactory.factorize();
     final String sqlQueryId = lifecycle.initialize(sqlQuery.getQuery(), sqlQuery.getContext());
     final String remoteAddr = req.getRemoteAddr();
@@ -95,9 +96,7 @@ public class SqlResource
 
     try {
       Thread.currentThread().setName(StringUtils.format("sql[%s]", sqlQueryId));
-
       lifecycle.setParameters(sqlQuery.getParameterList());
-      
       final PlannerContext plannerContext = lifecycle.planAndAuthorize(req);
       final DateTimeZone timeZone = plannerContext.getTimeZone();
 
@@ -116,7 +115,6 @@ public class SqlResource
       }
 
       final Yielder<Object[]> yielder0 = Yielders.each(lifecycle.execute());
-
       try {
         return Response
             .ok(
@@ -224,6 +222,8 @@ public class SqlResource
 
   Response buildNonOkResponse(int status, Exception e) throws JsonProcessingException
   {
+    log.error("buildNonOkResponse: " + jsonMapper.writeValueAsString(e));
+    log.error(e, "exception caught for sql request");
     return Response.status(status)
                    .type(MediaType.APPLICATION_JSON_TYPE)
                    .entity(jsonMapper.writeValueAsBytes(e))
